@@ -16,6 +16,76 @@ A secure, digital voting web application powered by Flask, OpenCV, face recognit
 
 ---
 
+## System Workflow Diagram
+
+```mermaid
+flowchart TD
+    %% Styling
+    classDef host fill:#e0f2fe,stroke:#0284c7,stroke-width:2px;
+    classDef voter fill:#fef3c7,stroke:#d97706,stroke-width:2px;
+    classDef security fill:#fee2e2,stroke:#dc2626,stroke-width:2px;
+    classDef db fill:#f3e8ff,stroke:#7e22ce,stroke-width:2px;
+    classDef success fill:#dcfce7,stroke:#16a34a,stroke-width:2px;
+
+    subgraph HostFlow ["1. Host / Election Admin Workflow"]
+        H1["Host Login"] --> H2{"reCAPTCHA\nVerification"}
+        H2 -- Passed --> H3["Host Dashboard"]
+        H3 --> H4["Create Voting Room\n(Generate Room ID)"]
+        H4 --> H5["Add Candidates\n& Upload Logos"]
+        H5 --> H6["Upload Allowed Voters\n(Whitelist Mobile/Aadhar)"]
+        H6 --> H7["Monitor Real-Time\nElection Analytics"]
+    end
+
+    subgraph VoterFlow ["2. Voter Verification & Ballot Workflow"]
+        V1["Voter Portal"] --> V2["Enter Room ID\n& reCAPTCHA"]
+        V2 --> V3{"Room Active\n& Valid?"}
+        V3 -- Yes --> V4["Step 1: Enter Mobile Number"]
+        
+        %% 2FA OTP
+        V4 --> V5["Request SMS OTP\n(Twilio Verify API)"]:::security
+        V5 --> V6["Enter 6-Digit OTP"]
+        V6 --> V7{"OTP Valid?"}:::security
+        V7 -- No --> V6
+        V7 -- Yes --> V8["Step 2: ID Card Upload\n(Aadhar Card)"]
+        
+        %% OCR & Card Face Detection
+        V8 --> V9["OCR Text Extraction\n(Name & Aadhar Matching)"]
+        V9 --> V10["Extract Face Photo\nfrom ID Card"]
+        V10 --> V11["Generate 128-d Reference\nFace Encoding"]:::security
+
+        %% Live Webcam & Liveness
+        V11 --> V12["Step 3: Live Webcam Capture"]
+        V12 --> V13["Liveness Detection\n(Movement & Spoof Check)"]:::security
+        V13 --> V14["Generate Live 128-d\nFace Encoding"]
+        
+        %% Biometric Match
+        V14 --> V15{"Biometric Distance < 0.6?\n(Face Match Valid)"}:::security
+        V15 -- Failed --> V16["Access Denied / Retake"]
+        
+        %% Anti-Double Vote Check
+        V15 -- Verified --> V17{"Has Voter\nAlready Voted?"}:::security
+        V17 -- Yes --> V18["Voting Blocked\n(Duplicate Vote Detected)"]
+        V17 -- No --> V19["Display Digital Ballot\n(Candidates & Logos)"]
+        
+        %% Ballot Cast
+        V19 --> V20["Cast Ballot"]
+        V20 --> V21["Mark Voter as Voted\n(Lock Session)"]
+        V21 --> V22["Record Ballot in Database\n& Secure Vote CSV"]:::db
+        V22 --> V23["Display Vote Casted Confirmation"]:::success
+    end
+
+    subgraph DataStore ["3. Storage & Analytics"]
+        V22 -.-> DB[("SQLite Database\n(frvs.db)")]:::db
+        V22 -.-> CSV[("Room Vote CSV\n(Audit Trail)")]:::db
+        DB -.-> H7
+    end
+
+    class H1,H3,H4,H5,H6,H7 host;
+    class V1,V4,V8,V12,V19,V20 voter;
+```
+
+---
+
 ## Project Architecture
 
 ```text
