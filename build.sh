@@ -5,8 +5,9 @@ set -o errexit
 echo "==> Setting build flags to prevent memory exhaustion..."
 export CMAKE_BUILD_PARALLEL_LEVEL=1
 
-echo "==> Upgrading pip, setuptools, and wheel..."
-python -m pip install --upgrade pip setuptools wheel
+echo "==> Upgrading pip and wheel, pinning setuptools<70.0.0..."
+python -m pip install --upgrade pip wheel
+python -m pip install "setuptools<70.0.0"
 
 echo "==> Pre-installing cmake..."
 python -m pip install cmake
@@ -14,7 +15,7 @@ python -m pip install cmake
 echo "==> Installing dependencies..."
 python -m pip install -r requirements.txt
 
-echo "==> Ensuring face_recognition_models is installed..."
-python -m pip install git+https://github.com/ageitgey/face_recognition_models.git
+echo "==> Verifying face_recognition and models installation..."
+python -c "import face_recognition; print('==> face_recognition and models loaded successfully!')"
 
 echo "==> Build process completed successfully."

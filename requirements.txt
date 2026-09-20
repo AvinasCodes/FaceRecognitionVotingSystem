@@ -1,5 +1,7 @@
-# Build tools
+# Build tools and compatibility
 cmake>=3.25.0
+setuptools<70.0.0
+wheel
 
 # Web Framework and WSGI Server
 Flask==3.0.0
@@ -15,7 +17,7 @@ Flask-SQLAlchemy==3.1.1
 
 # Face Recognition and Image Processing
 face-recognition==1.3.0
-git+https://github.com/ageitgey/face_recognition_models.git#egg=face_recognition_models
+face_recognition_models>=0.3.0
 opencv-python-headless==4.8.1.78
 numpy>=1.24.3,<2.0.0
 Pillow>=10.2.0

@@ -1,6 +1,24 @@
 import os
 import sqlite3
 import sys
+
+# Compatibility shim: face_recognition_models depends on pkg_resources,
+# which was deprecated/removed in newer setuptools releases.
+try:
+    import pkg_resources
+except ImportError:
+    import importlib.util
+    class _PkgResourcesShim:
+        @staticmethod
+        def resource_filename(package_or_requirement, resource_name):
+            if isinstance(package_or_requirement, str):
+                spec = importlib.util.find_spec(package_or_requirement)
+                if spec and spec.origin:
+                    base_dir = os.path.dirname(spec.origin)
+                    return os.path.join(base_dir, resource_name)
+            return resource_name
+    sys.modules['pkg_resources'] = _PkgResourcesShim()
+
 import cv2
 import face_recognition
 import time
