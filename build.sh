@@ -14,4 +14,7 @@ python -m pip install cmake
 echo "==> Installing dependencies..."
 python -m pip install -r requirements.txt
 
+echo "==> Ensuring face_recognition_models is installed..."
+python -m pip install git+https://github.com/ageitgey/face_recognition_models.git
+
 echo "==> Build process completed successfully."
