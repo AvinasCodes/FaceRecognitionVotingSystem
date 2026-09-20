@@ -20,6 +20,14 @@ except ImportError:
     sys.modules['pkg_resources'] = _PkgResourcesShim()
 
 import cv2
+
+def safe_destroy_windows():
+    """Safely destroy OpenCV windows if supported (noop in headless environments)."""
+    try:
+        cv2.destroyAllWindows()
+    except Exception:
+        pass
+
 import face_recognition
 import time
 import requests
@@ -242,7 +250,7 @@ def initialize_webcam(retries=3):
             print(f"Attempting to initialize webcam (Attempt {attempt + 1}/{retries})...")
             
             # Release any existing camera instance
-            cv2.destroyAllWindows()
+            safe_destroy_windows()
             
             # Initialize with DirectShow backend
             video = cv2.VideoCapture(0, cv2.CAP_DSHOW)
@@ -1074,7 +1082,7 @@ def cast_vote():
     finally:
         if video and video.isOpened():
             video.release()
-        cv2.destroyAllWindows()
+        safe_destroy_windows()
 
 def save_face_encodings(user_id, face_encodings):
     """Save face encodings for a user in the database."""
@@ -1395,9 +1403,12 @@ def verify_face_storage(user_id):
 @app.teardown_appcontext
 def cleanup(exception=None):
     """Cleanup camera resources"""
-    if hasattr(app, 'camera'):
-        app.camera.release()
-    cv2.destroyAllWindows()
+    try:
+        if hasattr(app, 'camera'):
+            app.camera.release()
+    except Exception:
+        pass
+    safe_destroy_windows()
 
 # Add these error handlers
 @app.errorhandler(400)
@@ -1716,7 +1727,7 @@ def video_feed():
             print(f"Video feed error: {str(e)}")
         finally:
             video.release()
-            cv2.destroyAllWindows()
+            safe_destroy_windows()
             
     return Response(generate_frames(),
                    mimetype='multipart/x-mixed-replace; boundary=frame')
