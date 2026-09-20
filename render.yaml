@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: frvs
+    runtime: python
+    plan: free
+    buildCommand: bash build.sh
+    startCommand: gunicorn --config gunicorn_config.py wsgi:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: CMAKE_BUILD_PARALLEL_LEVEL
+        value: "1"
+      - key: WEB_CONCURRENCY
+        value: "1"
+      - key: PORT
+        value: "10000"
+      - key: FLASK_SECRET_KEY
+        generateValue: true
+      - key: RECAPTCHA_SITE_KEY
+        sync: false
+      - key: RECAPTCHA_SECRET_KEY
+        sync: false
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_VERIFY_SERVICE_SID
+        sync: false

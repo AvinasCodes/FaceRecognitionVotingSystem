@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Host Login - FRVS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb, #90caf9);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 550px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(26, 35, 126, 0.1);
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        .icon-shield {
+            color: #1a237e;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .card-title {
+            color: #1a237e;
+            font-size: 1.59rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #1a237e;
+            font-weight: 500;
+            font-size: 0.9rem;
+            text-align: left;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e3f2fd;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #1a237e;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(26, 35, 126, 0.1);
+        }
+
+        .btn-primary {
+            background: #1a237e;
+            color: white;
+            padding: 1rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-weight: 500;
+            margin-top: 0.2rem;
+        }
+
+        .btn-primary:hover {
+            background: #283593;
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:disabled {
+            background: #90a4ae;
+            transform: none;
+            cursor: not-allowed;
+        }
+
+        .g-recaptcha {
+            display: flex !important;
+            justify-content: center;
+            margin: 1.5rem 0;
+        }
+
+        .back-link {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #1a237e;
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-top: 1.5rem;
+            width: 100%;
+        }
+
+        .messages {
+            margin-bottom: 1.5rem;
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto 1.5rem;
+        }
+
+        .messages > div {
+            padding: 1rem 1.25rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+            text-align: left;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            backdrop-filter: blur(10px);
+            border-left: 4px solid;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            opacity: 1;
+        }
+
+        /* Error Message */
+        .messages .error {
+            background: rgba(255, 235, 238, 0.95);
+            color: #d32f2f;
+            border-left-color: #d32f2f;
+        }
+
+        /* Success Message */
+        .messages .success {
+            background: rgba(232, 245, 233, 0.95);
+            color: #2e7d32;
+            border-left-color: #2e7d32;
+        }
+
+        /* Warning Message */
+        .messages .warning {
+            background: rgba(255, 243, 224, 0.95);
+            color: #f57c00;
+            border-left-color: #f57c00;
+        }
+
+        /* Info Message */
+        .messages .info {
+            background: rgba(227, 242, 253, 0.95);
+            color: #1565c0;
+            border-left-color: #1565c0;
+        }
+
+        .messages > div:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        @media (max-width: 576px) {
+            .messages {
+                margin: 0 1rem 1rem;
+            }
+            
+            .messages > div {
+                padding: 0.875rem 1rem;
+                font-size: 0.875rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .container {
+                margin: 1rem auto;
+            }
+            
+            .card {
+                padding: 1.5rem;
+            }
+        }
+
+        .error {
+            color: #d32f2f;
+            background-color: #ffebee;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            text-align: left;
+            border-left: 4px solid #d32f2f;
+        }
+       
+        .custom-alert {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            width: 90%;
+            max-width: 400px;
+            display: none;
+        }
+
+        .alert-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 1rem;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .alert-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            width: 100%;
+        }
+
+        .alert-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .alert-icon.success { color: #2e7d32; }
+        .alert-icon.error { color: #d32f2f; }
+        .alert-icon.warning { color: #f57c00; }
+        .alert-icon.info { color: #1565c0; }
+
+        .alert-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+            padding: 0.5rem 0;
+        }
+
+        .alert-title.success { color: #2e7d32; }
+        .alert-title.error { color: #d32f2f; }
+        .alert-title.warning { color: #f57c00; }
+        .alert-title.info { color: #1565c0; }
+
+        .alert-message {
+            color: #424242;
+            font-size: 1.1rem;
+            line-height: 1.5;
+            margin: 0.5rem 0;
+        }
+
+        .alert-button {
+            background: #1a237e;
+            color: white;
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            max-width: 200px;
+            margin-top: 1rem;
+        }
+
+        .alert-button:hover {
+            background: #283593;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(26, 35, 126, 0.2);
+        }
+
+        .alert-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            z-index: 999;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .alert-backdrop.show {
+            opacity: 1;
+        }
+
+        @keyframes fadeIn {
+            from { 
+                opacity: 0;
+                transform: translate(-50%, calc(-50% - 20px));
+            }
+            to { 
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes floatIn {
+            0% { 
+                opacity: 0;
+                transform: translate(-50%, -40%);
+            }
+            100% { 
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        .fade-out {
+            animation: fadeOut 0.3s ease-out forwards;
+        }
+
+        @keyframes fadeOut {
+            from { 
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+            to { 
+                opacity: 0;
+                transform: translate(-50%, calc(-50% + 20px));
+            }
+        }
+
+        .input-group {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 0.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 2px solid #e3f2fd;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        /* Add hover state */
+        .input-group:hover {
+            background: #ffffff;
+            border-color: #bbdefb;
+            box-shadow: 0 2px 8px rgba(26, 35, 126, 0.08);
+            transform: translateY(-1px);
+        }
+
+        /* Update focus state */
+        .input-group:focus-within {
+            background: white;
+            border-color: #1a237e;
+            box-shadow: 0 0 0 4px rgba(26, 35, 126, 0.1);
+            transform: translateY(-1px);
+        }
+
+        /* Add tooltip styles */
+        [data-bs-toggle="tooltip"] {
+            position: relative;
+        }
+
+        /* Custom Bootstrap Tooltip */
+        .tooltip {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            font-size: 0.875rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            margin-top: 8px !important;
+        }
+
+        .tooltip.show {
+            opacity: 1;
+        }
+
+        .tooltip .tooltip-inner {
+            background-color: #1a237e;
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            max-width: 300px;
+            line-height: 1.4;
+        }
+
+        .tooltip .tooltip-arrow::before {
+            border-bottom-color: #1a237e !important;
+            border-top-color: transparent !important;
+        }
+
+        .bs-tooltip-bottom {
+            padding: 0.5rem 0;
+        }
+
+        /* Add validation icon animations */
+        @keyframes validationFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50%) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(-50%) scale(1);
+            }
+        }
+
+        .form-control:valid + .validation-icon::before {
+            animation: validationFadeIn 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Flash Messages -->
+        <div class="messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="{{ category }}">
+                        <p>{{ message }}</p>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
+        </div>
+
+        <div class="card">
+            <i class="fas fa-user-shield icon-shield"></i>
+            <h1 class="card-title">Host Setup</h1>
+            
+            <form action="{{ url_for('host_login') }}" method="post" id="hostLoginForm">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                
+                <div class="form-group">
+                    <label for="host_id" class="form-label">Host ID</label>
+                    <div class="input-group">
+                        <input type="text" 
+                               class="form-control" 
+                               id="host_id" 
+                               name="host_id" 
+                               placeholder="Enter host ID"
+                               pattern="[A-Za-z0-9]+"
+                               minlength="6"
+                               maxlength="12"
+                               required
+                               data-bs-toggle="tooltip"
+                               data-bs-placement="top"
+                               title="Create a unique ID (6-12 characters, letters and numbers only)">
+                        
+                    </div>
+                </div>
+
+                <div class="form-group mt-3">
+                    <label for="election_name" class="form-label">Election Name</label>
+                    <div class="input-group">
+                        <input type="text" 
+                               class="form-control" 
+                               id="election_name" 
+                               name="election_name" 
+                               placeholder="Enter election name"
+                               required>
+                    </div>
+                </div>
+                
+                <div class="g-recaptcha mt-4"
+                     data-sitekey="{{ config['RECAPTCHA_SITE_KEY'] }}"
+                     data-callback="enableSubmit"
+                     data-theme="light">
+                </div>
+                
+                <button type="submit" 
+                        class="btn-primary mt-4" 
+                        id="submitBtn" 
+                        disabled>
+                    <i class="fas fa-sign-in-alt me-2"></i>Continue to Voting Room
+                </button>
+            </form>
+
+            <a href="{{ url_for('index') }}" class="back-link">
+                <i class="fas fa-arrow-left me-2"></i>Back to Home
+            </a>
+        </div>
+    </div>
+
+    <!-- Replace the existing alert elements with this single unified alert system -->
+    <div id="alertBackdrop" class="alert-backdrop" style="display: none;"></div>
+    <div id="customAlert" class="custom-alert" style="display: none;">
+        <div class="alert-content">
+            <div class="alert-header">
+                <i class="fas alert-icon"></i>
+                <div class="alert-title" id="alertTitle"></div>
+            </div>
+            <div class="alert-message" id="alertMessage"></div>
+            <button onclick="closeAlert()" class="alert-button">OK</button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function enableSubmit() {
+            document.getElementById('submitBtn').disabled = false;
+        }
+
+        document.getElementById('hostLoginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!grecaptcha.getResponse()) {
+                alert('Please complete the reCAPTCHA');
+                return;
+            }
+            
+            const formData = new FormData(this);
+            
+            fetch('/host_login', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = data.redirect + '?room_id=' + data.room_id;
+                } else {
+                    alert(data.message || 'Error creating room');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred');
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const messages = document.querySelectorAll('.messages > div');
+            messages.forEach(msg => {
+                setTimeout(() => {
+                    msg.style.opacity = '0';
+                    setTimeout(() => msg.remove(), 600);
+                }, 5000);
+            });
+
+            // Initialize all tooltips with bottom placement
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl, {
+                    placement: 'bottom',
+                    trigger: 'hover focus',
+                    animation: true,
+                    offset: [0, 10],
+                    delay: {
+                        show: 100,
+                        hide: 100
+                    }
+                });
+            });
+        });
+
+        function showAlert(title, message, type = 'info') {
+            const alert = document.getElementById('customAlert');
+            const backdrop = document.getElementById('alertBackdrop');
+            const alertTitle = document.getElementById('alertTitle');
+            const alertMessage = document.getElementById('alertMessage');
+            const alertIcon = alert.querySelector('.alert-icon');
+            
+            // Set content
+            alertTitle.textContent = title;
+            alertTitle.className = `alert-title ${type}`;
+            alertMessage.textContent = message;
+            
+            // Set icon based on type
+            alertIcon.className = `fas alert-icon ${type}`;
+            alertIcon.classList.add(type === 'success' ? 'fa-check-circle' : 
+                                  type === 'error' ? 'fa-times-circle' :
+                                  type === 'warning' ? 'fa-exclamation-triangle' : 
+                                  'fa-info-circle');
+            
+            // Show alert
+            backdrop.style.display = 'block';
+            alert.style.display = 'block';
+            
+            // Trigger animations
+            setTimeout(() => {
+                backdrop.classList.add('show');
+                alert.querySelector('.alert-content').style.animation = 'fadeIn 0.3s ease-out';
+            }, 10);
+            
+            // Auto-hide for success messages
+            if (type === 'success') {
+                setTimeout(closeAlert, 2000);
+            }
+        }
+
+        function closeAlert() {
+            const alert = document.getElementById('customAlert');
+            const backdrop = document.getElementById('alertBackdrop');
+            const content = alert.querySelector('.alert-content');
+            
+            content.style.animation = 'fadeOut 0.3s ease-out';
+            backdrop.classList.remove('show');
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+                backdrop.style.display = 'none';
+                content.style.animation = '';
+            }, 300);
+        }
+    </script>
+</body>
+</html>

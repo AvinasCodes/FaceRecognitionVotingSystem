@@ -1,0 +1,55 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+credentials.json
+token.json
+token_*.pickle
+*.pem
+*.key
+*.cert
+
+# Databases and runtime data
+*.db
+*.sqlite
+*.sqlite3
+frvs.db
+voting_system.db
+votes/
+data/
+uploads/
+logs/
+*.log
+
+# Large binary files and ML models
+*.dat
+*.dat.bz2
+shape_predictor_*.dat
+models/*.dat
+models/*.bz2
+
+# Nested repositories and vendor build dirs
+dlib/
+
+# Python cache and build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+build/
+dist/
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDE and OS metadata
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Host Login - FRVS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb, #90caf9);
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            text-align: center;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(26, 35, 126, 0.1);
+            backdrop-filter: blur(10px);
+            max-width: 480px;
+            width: 90%;
+        }
+        .container h1 {
+            color: #1a237e;
+            margin-top: 0.2rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        input {
+            padding: 12px 16px;
+            font-size: 1rem;
+            border: 2px solid #e3f2fd;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        input:focus {
+            border-color: #1a237e;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(26, 35, 126, 0.1);
+        }
+        
+        /* Only show validation styles after user interaction */
+        input[type="email"]:not(:placeholder-shown):invalid {
+            border-color: #d32f2f;
+            box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
+        }
+
+        input[type="email"]:not(:placeholder-shown):valid {
+            border-color: #4caf50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+
+        /* Remove focus styles when input is valid/invalid */
+        input[type="email"]:not(:placeholder-shown):focus {
+            border-color: inherit;
+            box-shadow: inherit;
+        }
+        
+        button {
+            padding: 12px;
+            font-size: 1rem;
+            background-color: #1a237e;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        button:hover {
+            background-color: #283593;
+            transform: translateY(-2px);
+        }
+        .links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        .links a {
+            color: #1a237e;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+        .links a:hover {
+            color: #283593;
+            text-decoration: underline;
+        }
+        .logo {
+            width: 170px;
+            height: auto;
+            margin-bottom: -2rem;
+            margin-top: -3rem;
+            filter: drop-shadow(0 4px 8px rgba(26, 35, 126, 0.2));
+        }
+        .error-message {
+            color: #d32f2f;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+        .user-icon {
+            color: #1a237e;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <i class="fas fa-user-lock fa-3x user-icon"></i>
+        <h1>Host Login</h1>
+        <div class="messages">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="error-message">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
+        </div>
+        <form action="/host_login" method="post">
+            <!-- Add CSRF token -->
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            
+            <input type="text" id="election_name" name="election_name" placeholder="Election Name" required>
+            <input type="email" id="host_gmail" name="host_gmail" placeholder="Enter your Gmail" 
+                   pattern="[a-z0-9._%+-]+@gmail\.com$" 
+                   title="Please enter a valid Gmail address" required>
+            <button type="submit">
+                <i class="fas fa-sign-in-alt me-2"></i> Submit
+            </button>
+        </form>
+        <div class="links">
+            <a href="{{ url_for('index') }}">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+            <a href="/background.png">
+                <i class="fas fa-question-circle"></i> Guide Me
+            </a>
+        </div>
+    </div>
+</body>
+</html>
